@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let count = 1; // 儲值品項從2開始
+            let exchangeRate = 1; // 預設匯率 (TWD)
+    
+            // 新增儲值品項
+            $("#addItem").on("click", function () {
+                var newItemRow = `
+                    <div class="item-row" style="display: flex; justify-content: center; gap: 20px;">
+                        <p>儲值品項${count}:</p>
+                        <select class="price-select">
+                            <option value="0">請選擇儲值品項</option>
+                            <optgroup label="遊戲商店寶石">
+                                <option value="70">30寶石</option>
+                                <option value="170">80寶石</option>
+                                <option value="330">179寶石</option>
+                                <option value="670">414寶石</option>
+                                <option value="1690">1140寶石</option>
+                                <option value="3290">2500寶石</option>
+                            </optgroup>
+                            <optgroup label="SC商店寶石">
+                                <option value="70">30+3寶石</option>
+                                <option value="170">80+8寶石</option>
+                                <option value="330">179+17寶石</option>
+                                <option value="670">414+36寶石</option>
+                                <option value="1690">1140+95寶石</option>
+                                <option value="3290">2500+200寶石</option>
+                            </optgroup>
+                            <optgroup label="遊戲商店通行券">
+                                <option value="220">普通通行券</option>
+                                <option value="330">高級通行券</option>
+                                <option value="830">Pro通行券</option>
+                            </optgroup>
+                            <optgroup label="SC商店通行券">
+                                <option value="220">普通通行券</option>
+                                <option value="330">高級通行券</option>
+                                <option value="830">Pro通行券</option>
+                            </optgroup>
+                        </select>
+                        <input type="number" class="quantity" value="1" min="1" max="10">
+                    </div>
+                `;
+                $(this).before(newItemRow);
+                count++;
+            });
+    
+            // 監聽變更並計算金額
+            $(document).on("change", ".price-select, .quantity", function () {
+                calculateTotal();
+            });
+    
+            // 監聽選擇貨幣，更新匯率
+            $("#currencySelector").on("change", function () {
+                let selectedCurrency = $(this).val();
+                getExchangeRate("TWD", selectedCurrency);
+            });
+    
+            // 取得匯率
+            function getExchangeRate(base, target) {
+                $.get(`https://api.exchangerate-api.com/v4/latest/${base}`, function (data) {
+                    if (data.rates[target]) {
+                        exchangeRate = data.rates[target];
+                        console.log(`1 TWD = ${exchangeRate} ${target}`);
+                        calculateTotal();
+                    }
+                });
+            }
+    
+            // 計算總金額
+            function calculateTotal() {
+                let total = 0;
+                $(".item-row").each(function () {
+                    let price = parseFloat($(this).find(".price-select").val());
+                    let qty = parseInt($(this).find(".quantity").val());
+                    total += price * qty;
+                });
+    
+                let selectedCurrency = $("#currencySelector").val();
+                let convertedTotal = (total * exchangeRate).toFixed(2);
+    
+                $("#totalPrice").text(`總金額: ${convertedTotal} ${selectedCurrency}`);
+            }
+        });
+    </script>    
+    <meta name=”viewport” content=”width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>荒野亂鬥計算機</title>
+    <style>
+        body{
+            background-color: white;
+            margin:0;
+        }
+        nav{
+            background-image: url("DarkSandSeasonBG.png");
+            display: flex;
+            border-bottom: 3px solid #000;
+        }
+        li{
+            display: inline-flex;
+        }
+        li a{
+            text-decoration: none;
+            color: #000;
+        }
+        li a p{
+            color: #ffffff;
+            font-size: 45px;
+            font-family: 'hanwangheiheavy';
+            font-weight: normal;
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        header{
+            background: url(navbg.png);
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            display: block;
+            margin-top: -27px;
+        }
+        header a, h1{
+            color: white;
+            font-size: 40px;
+            text-align: center;
+            font-family: 'hanwangheiheavy';
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        header a, p{
+            color: white;
+            font-size: 20px;
+            margin-bottom: 20px;
+            margin-top: 8px;
+            text-align: center;
+            font-family: 'hanwangheiheavy';
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        select{
+            height: 40px;
+            width: 165px;
+            font-size: 20px;
+            background-color: rgb(255, 255, 255);
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+        .quantity{
+            height: 35px;
+            width: 60px;
+            font-size: 20px;
+            background-color: rgb(255, 255, 255);
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+        .plus{
+            height: 35px;
+            width: 370px;
+            font-size: 20px;
+            background-color: rgb(255, 255, 255);
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+        .ad{
+            background: url(BrawloweenBG.png);
+            background-size: cover;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            display: block;
+            margin-top: -27px;
+        }
+        .ad a, h1{
+            color: white;
+            font-size: 40px;
+            text-align: center;
+            font-family: 'hanwangheiheavy';
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        .ad a, h2{
+            color: white;
+            font-size: 25px;
+            text-align: center;
+            text-decoration: none;
+            font-family: 'hanwangheiheavy';
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        .ad a, p{
+            color: white;
+            font-size: 20px;
+            margin-bottom: 20px;
+            margin-top: 8px;
+            text-align: center;
+            font-family: 'hanwangheiheavy';
+            -webkit-text-stroke-width: 0.7px;
+            -webkit-text-stroke-color: black;
+        }
+        footer{
+            background-color: #000;
+            color: white;
+            font-size: 25px;
+            font-family: 'hanwangheiheavy';
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html"><p style="font-weight: bold;">荒野亂鬥計算機</p></a></li>
+        </ul>
+    </nav>
+    <header>
+        <h1 style="margin-top: 50px;">儲值金額計算機</h1>
+        <center>
+            <select id="currencySelector" class="plus">
+                <option value="TWD">台灣 (TWD)</option>
+                <option value="USD">美國 (USD)</option>
+                <option value="JPY">日本 (JPY)</option>
+                <option value="KRW">韓國 (KRW)</option>
+                <option value="CNY">中國 (CNY)</option>
+                <option value="HKD">香港 (HKD)</option>
+                <option value="SGD">新加坡 (SGD)</option>
+                <option value="EUR">歐元 (EUR)</option>
+                <option value="GBP">英國 (GBP)</option>
+                <option value="AUD">澳洲 (AUD)</option>
+                <option value="CAD">加拿大 (CAD)</option>
+            </select><br><br>
+            <button id="addItem" class="plus">新增儲值品項</button>
+            <p id="totalPrice">總金額: 0 元</p><br><br>
+        </center>        
+    </header>
+    <div class="ad">
+        <h1 style="margin-top: 50px;">荒野亂鬥台港澳YTB</h1>
+        <h2>官方YT</h2><a href="https://www.youtube.com/@BrawlStars" target="_blank"><h2 style="color: blue;-webkit-text-stroke-width: 0.7px;-webkit-text-stroke-color: white;">頻道連結🔗</h2></a>
+        <h2>YT:盛主播</h2><a href="https://www.youtube.com/@Chun" target="_blank"><h2 style="color: blue;-webkit-text-stroke-width: 0.7px;-webkit-text-stroke-color: white;">頻道連結🔗</h2></a>
+        <h2>YT:PowerTech淮特</h2><a href="https://www.youtube.com/@powertech4165" target="_blank"><h2 style="color: blue;-webkit-text-stroke-width: 0.7px;-webkit-text-stroke-color: white;">頻道連結🔗</h2></a>
+        <h2>YT:劉Ray</h2><a href="https://www.youtube.com/@RayLiuBS" target="_blank"><h2 style="color: blue;-webkit-text-stroke-width: 0.7px;-webkit-text-stroke-color: white;">頻道連結🔗</h2></a>
+        <h2>YT:嘿!兄弟</h2><a href="https://www.youtube.com/@CodeHeyBrother" target="_blank"><h2 style="color: blue;-webkit-text-stroke-width: 0.7px;-webkit-text-stroke-color: white;">頻道連結🔗</h2></a>
+    </div>
+    <footer>
+        <p>本網站由FayWooooo製作</p>
+    </footer>
+</body>
